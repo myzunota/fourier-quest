@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FOURIER QUEST — Stage</title>
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     STORY OVERLAY — shown at stage start
+══════════════════════════════════════════════════ -->
+<div id="story-overlay" class="overlay">
+  <div class="story-box">
+    <div class="story-world-label" id="story-world">TUTORIAL · T-1</div>
+    <div class="story-htitle"    id="story-htitle">エントリー・ゲート</div>
+    <h2 class="story-mission-title" id="story-title">振幅を制御せよ</h2>
+    <p class="story-body" id="story-text"></p>
+    <button class="btn-start" id="story-start">― START MISSION ―</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     RESULT OVERLAY — shown after submit
+══════════════════════════════════════════════════ -->
+<div id="result-overlay" class="overlay hidden">
+  <div class="result-box">
+    <div class="result-mission-complete">MISSION COMPLETE</div>
+    <div id="result-stars">★★★</div>
+    <div id="result-pct"></div>
+    <p id="result-flavor"></p>
+    <div class="result-actions">
+      <button id="retry-btn">↺ RETRY</button>
+      <button id="next-btn">NEXT →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     GAME LAYOUT
+══════════════════════════════════════════════════ -->
+<div id="game-root">
+
+  <!-- Header -->
+  <header id="game-header">
+    <span class="world-badge" id="world-name">TUTORIAL</span>
+    <span class="stage-index" id="stage-index">T-1</span>
+    <h1 id="stage-title">振幅を制御せよ</h1>
+    <div class="header-actions">
+      <button class="btn-icon" id="hint-btn">💡 HINT</button>
+      <a href="index.html" class="btn-icon">✕ EXIT</a>
+    </div>
+  </header>
+
+  <!-- Hint panel (collapsed by default) -->
+  <div id="hint-panel" class="hidden">
+    <p id="hint-text"></p>
+  </div>
+
+  <!-- Canvas area: time domain + frequency domain -->
+  <main id="game-main">
+    <div class="canvas-panel">
+      <span class="panel-label">TIME DOMAIN</span>
+      <canvas id="wave-canvas"></canvas>
+      <canvas id="fx-canvas" style="pointer-events:none;z-index:6"></canvas>
+    </div>
+    <div class="spectrum-panel">
+      <span class="panel-label">FREQ. DOMAIN</span>
+      <canvas id="spectrum-canvas"></canvas>
+    </div>
+  </main>
+
+  <!-- Match score bar -->
+  <div id="score-bar">
+    <span class="score-label">MATCH</span>
+    <div class="score-track">
+      <div id="score-fill"></div>
+    </div>
+    <span id="score-value">0%</span>
+  </div>
+
+  <!-- Controls -->
+  <section id="controls">
+    <div id="sliders-container">
+      <!-- Sliders injected by app.js -->
+    </div>
+    <div class="control-actions">
+      <button class="btn-secondary" id="reset-btn">↺ RESET</button>
+      <button class="btn-secondary" id="play-btn">▶ PLAY</button>
+      <button class="btn-primary"   id="submit-btn">SUBMIT</button>
+    </div>
+  </section>
+
+</div><!-- /#game-root -->
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

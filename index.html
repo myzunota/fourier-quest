@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FOURIER QUEST</title>
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+<div class="title-root">
+
+  <!-- ── Hero ──────────────────────────────────────── -->
+  <section class="hero">
+    <canvas id="title-canvas"></canvas>
+    <div class="hero-content">
+      <p class="game-tagline">Wave Engineering · Educational Puzzle</p>
+      <h1 class="game-title">FOURIER<br><span>QUEST</span></h1>
+      <p class="game-subtitle">すべての波は正弦波の重ね合わせでできている</p>
+      <div class="hero-buttons">
+        <a class="btn-hero-primary" href="game.html?stage=tutorial-1">▶ START GAME</a>
+        <a class="btn-hero-secondary" href="game.html?stage=tutorial-1&mode=free">⊞ FREE MODE</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Stage Select ──────────────────────────────── -->
+  <section class="stage-select">
+    <div class="section-title">STAGE SELECT</div>
+
+    <div class="worlds-grid" id="worlds-grid">
+      <!-- Injected by title.js -->
+    </div>
+  </section>
+
+  <!-- ── Formula bar ──────────────────────────────── -->
+  <div class="formula-bar">
+    <span class="formula-text">
+      y(t) = Σ Aₙ · sin(2π fₙ t + φₙ) &nbsp;·&nbsp; DFT: Xₖ = Σ xₙ · e^{-i2πkn/N}
+    </span>
+  </div>
+
+  <!-- ── Footer ────────────────────────────────────── -->
+  <footer class="page-footer">
+    <span class="footer-brand">FOURIER QUEST</span>
+    <span class="footer-version">Phase 1 · Tutorial Build</span>
+  </footer>
+
+</div>
+
+<script type="module">
+import { WORLDS, STAGES } from './js/stages.js';
+
+// ── Build worlds grid ─────────────────────────────
+const grid = document.getElementById('worlds-grid');
+const save = (() => {
+  try { return JSON.parse(localStorage.getItem('fq-save') || '{}'); }
+  catch (_) { return {}; }
+})();
+
+WORLDS.forEach(world => {
+  const card = document.createElement('div');
+  card.className = `world-card ${world.unlocked ? 'unlocked' : 'locked'}`;
+
+  const starsHtml = world.stages.map(sId => {
+    const earned = save?.stages?.[sId]?.stars || 0;
+    const stage  = STAGES[sId];
+    const starStr = '★'.repeat(earned) + '☆'.repeat(3 - earned);
+    return `
+      <a class="stage-item" href="game.html?stage=${sId}">
+        <span class="stage-item-index">${stage.indexLabel}</span>
+        <span class="stage-item-title">${stage.title}</span>
+        <span class="stage-item-stars ${earned > 0 ? 'earned' : ''}">${starStr}</span>
+      </a>`;
+  }).join('') || `<div style="padding:12px;font-size:12px;color:var(--text-dim)">近日公開</div>`;
+
+  card.innerHTML = `
+    <div class="world-card-header" style="border-top: 2px solid ${world.color}20">
+      <div>
+        <div class="world-card-name" style="color:${world.color}">${world.name}</div>
+        <div class="world-card-sub">${world.subtitle}</div>
+      </div>
+      ${!world.unlocked ? '<span class="lock-icon">🔒</span>' : ''}
+    </div>
+    <div class="stage-list">${starsHtml}</div>`;
+
+  grid.appendChild(card);
+});
+
+// ── Animated wave background ──────────────────────
+const canvas = document.getElementById('title-canvas');
+const ctx    = canvas.getContext('2d');
+
+function resize() {
+  canvas.width  = canvas.offsetWidth  * (window.devicePixelRatio || 1);
+  canvas.height = canvas.offsetHeight * (window.devicePixelRatio || 1);
+}
+resize();
+window.addEventListener('resize', resize);
+
+// Wave definitions for the animated background
+const waves = [
+  { freq: 1.5, amp: 0.28, phase: 0,    speed: 0.6,  color: 'rgba(0,212,255,0.18)',  width: 1.5 },
+  { freq: 3.0, amp: 0.14, phase: 1.0,  speed: 1.1,  color: 'rgba(0,255,136,0.14)',  width: 1.2 },
+  { freq: 2.0, amp: 0.20, phase: 2.2,  speed: 0.8,  color: 'rgba(139,92,246,0.12)', width: 1.0 },
+  { freq: 5.0, amp: 0.07, phase: 0.5,  speed: 1.6,  color: 'rgba(255,107,157,0.10)',width: 0.8 },
+  { freq: 1.0, amp: 0.22, phase: 3.5,  speed: 0.45, color: 'rgba(255,215,0,0.08)',  width: 1.0 },
+];
+
+let t = 0;
+
+function drawWaves() {
+  const dpr = window.devicePixelRatio || 1;
+  const W   = canvas.width  / dpr;
+  const H   = canvas.height / dpr;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  waves.forEach(w => {
+    ctx.beginPath();
+    ctx.strokeStyle = w.color;
+    ctx.lineWidth   = w.width;
+    ctx.shadowColor = w.color;
+    ctx.shadowBlur  = 8;
+
+    for (let x = 0; x <= W; x += 2) {
+      const phase = (x / W) * w.freq * Math.PI * 2 + w.phase + t * w.speed;
+      const y     = H / 2 + Math.sin(phase) * H * w.amp;
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+  });
+
+  t += 0.01;
+  requestAnimationFrame(drawWaves);
+}
+drawWaves();
+</script>
+</body>
+</html>
